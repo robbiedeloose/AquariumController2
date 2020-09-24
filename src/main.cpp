@@ -38,6 +38,8 @@ int value = 0;
 bool co2;
 bool air;
 
+// PUMP
+float pumpCalibration = 0.77;
 
 // RTC
 #include <Wire.h> // must be included here so that Arduino library object file references work
@@ -74,15 +76,6 @@ unsigned long time_now = 0;
 
 // EEPROM
 #include <EEPROM.h>
-
-// Display
-#include <Adafruit_I2CDevice.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#include <Fonts/FreeMono12pt7b.h>
-#include <Fonts/FreeMono9pt7b.h>
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
 
 // TIME FUNCTIONS ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -368,6 +361,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
       digitalWrite(PIN_RELAY_AIR, LOW);      
     }
   }
+  else if (strcmp(topic, "homie/aquarium110/pump1") == 0){
+    int payloadAsInt = atoi ((char*)payload);
+    digitalWrite(PIN_PUMP1,HIGH);
+    delay(payloadAsInt * 1000 * pumpCalibration);
+    digitalWrite(PIN_PUMP1,LOW);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -433,6 +432,7 @@ void setup() {
 
   pinMode(PIN_RELAY_CO2, OUTPUT);
   pinMode(PIN_RELAY_AIR, OUTPUT);
+  pinMode(PIN_PUMP1, OUTPUT);
 
   // Setup RTC //
   Serial.print("compiled: ");
